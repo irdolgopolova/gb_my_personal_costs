@@ -8,7 +8,7 @@
                 <p class="cost_list__item__props">Категория</p>
                 <p class="cost_list__item__props">Стоимость</p>
             </div>
-            <div class="cost_list__item" v-for="item in itemsOnPage" :key="item.id">
+            <div class="cost_list__item" v-for="item in costsList" :key="item.id">
                 <p class="cost_list__item__props" v-for="(prop, index) in item" :key="index">{{ prop }}</p>
             </div>
         </div>
@@ -18,17 +18,10 @@
 <script>
 export default {
     name: 'List',
-    props: {
-        items: Array,
-        page: Number
-    },
     computed: {
-        itemsOnPage: function() {
-            let endIndex = this.page * 5;
-            let startIndex = endIndex - 5;
-
-            return this.items.slice(startIndex, endIndex);
-        }
+        costsList() {
+            return this.$store.getters.getCostsList;
+        },
     }
 }
 </script>

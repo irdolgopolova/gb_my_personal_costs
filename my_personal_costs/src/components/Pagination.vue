@@ -20,7 +20,7 @@
         <button
             class="primary_btn"
             href="#" @click="nextPage"
-            :disabled='currentPageNumber == lastPage'
+            :disabled='currentPageNumber == pageNumbers'
         >
             &gt;
         </button>
@@ -33,23 +33,12 @@ export default {
     data() {
         return {
             currentPageNumber: 1,
-            lastPage: 1
         }
-    },
-    props: {
-        countCosts: {
-            type: Number,
-            default: 0
-        },
     },
     computed: {
         pageNumbers: function () {
-            let countPages = ~~(this.countCosts / 5) + 1;
-            let pageNumbers = Array.from({length: countPages}, (x, i) => i + 1);
-            this.lastPage = pageNumbers.slice(-1);
-
-            return pageNumbers;
-        }
+            return this.$store.getters.getPageCount;
+        },
     },
     methods: {
         _setActiveClassForBtn() {
@@ -61,26 +50,21 @@ export default {
             let pageNumberBtn = document.querySelector(`button[page="${this.currentPageNumber}"]`);
             pageNumberBtn.classList.add('active');
         },
-        _eventChangeNumber(number) {
+        _eventChangePage(number) {
+            event.preventDefault();
+
             this.currentPageNumber = number;
-
+            this.$store.commit('setPage', this.currentPageNumber);
             this._setActiveClassForBtn();
-
-            this.$emit('changeNumber', {
-                numberPage: number
-            });
         },
         previousPage() {
-            event.preventDefault();
-            this._eventChangeNumber(this.currentPageNumber - 1);
+            this._eventChangePage(--this.currentPageNumber);
         },
         openPage(number) {
-            event.preventDefault();
-            this._eventChangeNumber(number);
+            this._eventChangePage(number);
         },
         nextPage() {
-            event.preventDefault();
-            this._eventChangeNumber(this.currentPageNumber + 1);
+            this._eventChangePage(++this.currentPageNumber);
         }
     },
     mounted() {
