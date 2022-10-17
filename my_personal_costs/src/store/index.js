@@ -19,9 +19,9 @@ export default new Vuex.Store({
   },
   mutations: {
     setCostsList: (state, payload) => {
-        state.costsList = payload;
-        state.pagesCount = Object.keys(payload).length;
-      },
+      state.costsList = payload;
+      state.pagesCount = Object.keys(payload).length;
+    },
     addCostsList: (state, payload) => {
       let lastPage = Object.keys(state.costsList).slice(-1);
       let newCost = Object.assign({id: ++state.categoryListLength }, payload);
@@ -41,6 +41,8 @@ export default new Vuex.Store({
   actions: {
     featchData({commit}) {
       return new Promise((resolve, reject)=> {
+        if (Object.keys(this.state.costsList).length) return;
+
         setTimeout(() => {
           resolve({
             "page1": [
