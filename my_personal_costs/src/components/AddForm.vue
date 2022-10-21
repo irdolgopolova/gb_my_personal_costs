@@ -1,6 +1,6 @@
 <template>
-    <div class="modal">
-        <form id="add_form" class="modal__add_form" action="#">
+    <div class="form">
+        <form id="add_form" class="form__add_form" action="#">
             <label for="cost_date">Дата</label>
             <input type="date" id="cost_date" v-model="cost.date" />
 
@@ -24,7 +24,7 @@
             <label for="cost_price">Стоимость</label>
             <input type="number" id="cost_price" v-model="cost.price" />
 
-            <div class="modal__errors" v-if="formModalErrors">
+            <div class="form__errors" v-if="formModalErrors">
                 {{formModalErrors}}
             </div>
 
@@ -90,10 +90,37 @@ export default {
                     category: this.cost.category,
                     price: this.cost.price
                 });
+
+                this.$router.push('/');
             }
+        },
+        _setPostParams() {
+            this.isShowForm = true;
+
+            let dateObject = new Date();
+            let month = dateObject.getMonth() + 1;
+            if (month < 10) {
+                month = `0${month}`;
+            }
+
+            this.cost.date = `${dateObject.getFullYear()}-${month}-${dateObject.getDate()}`;
+
+            if (this.$route.params.category) {
+                this.cost.category = this.$route.params.category;
+            }
+
+            if (this.$route.query.value) {
+                this.cost.price = this.$route.query.value;
+            }
+
+            document.querySelector('button[type="submit"]').click();
         }
     },
     mounted() {
+        if (this.$route.params.category) {
+            this._setPostParams();
+        }
+
         this.$store.dispatch('loadCategory');
     }
 }
@@ -102,17 +129,9 @@ export default {
 <style scoped lang="scss">
 @import "./../scss/variables";
 
-.modal {
-    position: absolute;
-    top: 8vh;
-    left: calc(50% - 300px);
-
+.form {
     width: 600px;
-    height: fit-content;
-
-    background-color: $color_background_modal;
-    border: $green_border;
-    border-radius: 9px;
+    margin: 0 auto;
 
     &__add_form {
         display: flex;
@@ -162,6 +181,7 @@ export default {
                 flex-direction: row;
                 justify-content: space-between;
                 width: 100%;
+                margin: 0 0 16px;
             }
         }
 
