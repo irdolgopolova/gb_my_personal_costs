@@ -28,8 +28,12 @@
                 {{formModalErrors}}
             </div>
 
-            <button class="primary_btn" type="submit" @click="addNewCosts(cost)">
+            <button class="primary_btn" type="submit" @click="addNewCosts(cost)" v-if="isNewRecord">
                 Добавить
+            </button>
+
+            <button class="primary_btn" type="submit" @click="updateNewCosts(cost)" v-if="!isNewRecord">
+                Обновить
             </button>
         </form>
     </div>
@@ -40,6 +44,7 @@ export default {
     name: 'AddForm',
     data() {
         return {
+            isNewRecord: true,
             cost: {
                 date: '',
                 category: '',
@@ -58,11 +63,16 @@ export default {
         _formatedDate() {
             let dateObject = new Date(this.cost.date);
             let month = dateObject.getMonth() + 1;
+            let day = dateObject.getDate();
+
             if (month < 10) {
                 month = `0${month}`;
             }
+            if (day < 10) {
+                day = `0${day}`;
+            }
 
-            return `${dateObject.getDate()}.${month}.${dateObject.getFullYear()}`;
+            return `${day}.${month}.${dateObject.getFullYear()}`;
         },
         _checkCategory() {
             if (this.categoryList.includes(this.cost.category)) return;
@@ -88,7 +98,21 @@ export default {
                 this.$store.commit('addCostsList', {
                     date: this._formatedDate(),
                     category: this.cost.category,
-                    price: this.cost.price
+                    value: this.cost.price
+                });
+
+                this.$router.push('/');
+            }
+        },
+        updateNewCosts() {
+            event.preventDefault();
+
+            if (this._validate()) {
+                this.$store.commit('updateCost', {
+                    id: this.$route.params.id,
+                    date: this._formatedDate(),
+                    category: this.cost.category,
+                    value: this.cost.price
                 });
 
                 this.$router.push('/');
@@ -114,11 +138,30 @@ export default {
             }
 
             document.querySelector('button[type="submit"]').click();
+        },
+        _load(params) {
+            if (!params) return false;
+
+            let partsDate = params.date.split('.');
+            this.cost.date = `${partsDate[2]}-${partsDate[1]}-${partsDate[0]}`;
+            this.cost.category = params.category;
+            this.cost.price = params.value;
+
+            return true;
         }
     },
     mounted() {
         if (this.$route.params.category) {
             this._setPostParams();
+        }
+
+        if (this.$route.params.id) {
+            let id = this.$route.params.id;
+            let updatedCost = this.$store.getters.getCost(id);
+
+            if (this._load(updatedCost)) {
+                this.isNewRecord = false;
+            }
         }
 
         this.$store.dispatch('loadCategory');

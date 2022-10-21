@@ -17,6 +17,13 @@ const routes = [
       return import('../views/AddFormPage.vue')
     },
     props: route => ({ value: route.query.value })
+  },
+  {
+    path: '/update/payment/:id',
+    name: 'addPayment',
+    component: function () {
+      return import('../views/AddFormPage.vue')
+    },
   }
 ]
 
