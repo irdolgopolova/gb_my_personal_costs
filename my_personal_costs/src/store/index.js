@@ -13,6 +13,15 @@ export default new Vuex.Store({
   },
   getters: {
     getCostsList: ({costsList, page}) => (`page${page}` in costsList) ? costsList[`page${page}`] : costsList,
+    getCost: ({costsList}) => id => {
+      let costsWithoutPage = [];
+
+      for (let page in costsList) {
+        costsWithoutPage.push(...costsList[page]);
+      }
+
+      return costsWithoutPage.find(cost => cost.id == id);
+    },
     getCategoryList: ({categoryList}) => categoryList,
     getPage: ({page}) => page,
     getPageCount: ({pagesCount}) => pagesCount,
@@ -32,6 +41,20 @@ export default new Vuex.Store({
         state.pagesCount++;
         state.costsList[`page${state.pagesCount}`] = [newCost];
       }
+    },
+    updateCost: (state, payload) => {
+      state.costsList[`page${state.page}`].map(cost => {
+        if (cost.id == payload.id) {
+          cost.date = payload.date;
+          cost.category = payload.category;
+          cost.value = payload.value;
+        }
+      });
+    },
+    deleteCost: (state, payload) => {
+      state.costsList[`page${state.page}`] = state.costsList[`page${state.page}`].filter(cost => {
+        return cost.id != payload.id
+      });
     },
     setSearchString: (state, payload) => state.searchString = payload,
     setCategoryList: (state, payload) => state.categoryList = payload,
@@ -60,6 +83,7 @@ export default new Vuex.Store({
       })
       .then((list) => commit('setCostsList', list));
     },
+
     loadCategory({commit}) {
       return new Promise((resolve, reject)=> {
         if (this.state.categoryList.length) return;
