@@ -1,9 +1,9 @@
 <template>
   <div>
     <ButtonForm @showPopup="popupToggle" ></ButtonForm>
-    <AddForm v-if="isPopupActive" @addNewCosts="addNewCosts"></AddForm>
-    <List :items="costsList" :page="pageNumber"><h1>Мои личные расходы</h1></List>
-    <Pagination :countCosts="costsList.length" @changeNumber="setPageNumber"></Pagination>
+    <AddForm v-if="isPopupActive"></AddForm>
+    <List><h1>Мои личные расходы</h1></List>
+    <Pagination></Pagination>
   </div>
 </template>
 
@@ -28,29 +28,22 @@ export default {
       pageNumber: 1
     }
   },
+  mounted() {
+    this.$store.dispatch('featchData');
+  },
   methods: {
-    fetchData() {
-      return fetch('/db/listCosts.json')
-          .then(result => result.json())
-          .catch(error => console.error(error));
-    },
     popupToggle() {
       this.isPopupActive = !this.isPopupActive;
     },
     addNewCosts(data) {
-      this.costsList.push(Object.assign({id: this.costsList.length + 1}, data));
+      console.log(this.costsList);
+      // this.costsList.push(Object.assign({id: this.costsList.length + 1}, data));
       this.isPopupActive = !this.isPopupActive;
     },
     setPageNumber(data) {
       this.pageNumber = data.numberPage;
     }
   },
-  created() {
-    this.fetchData()
-      .then((data) => this.costsList = data)
-      .catch(error => console.error(error));
-  }
-
 }
 </script>
 

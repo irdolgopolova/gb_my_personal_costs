@@ -2,19 +2,33 @@
     <div class="modal">
         <form id="add_form" class="modal__add_form" action="#">
             <label for="cost_date">Дата</label>
-            <input type="date" id="cost_date" v-model="cost_date" />
+            <input type="date" id="cost_date" v-model="cost.date" />
 
             <label for="cost_category">Категория</label>
-            <input type="text" id="cost_category" v-model="cost_category" />
+            <div class="category_list">
+                <div class="category_list__select_list" v-if="!isShowForm">
+                    <select class="category_list__select" v-model="cost.category">
+                        <option v-for="(category, index) in categoryList" :key="index" :value="category" >
+                            {{category}}
+                        </option>
+                    </select>
+                    <button class="category_list__btn primary_btn" @click="isShowForm = !isShowForm">
+                        Добавить новую категорию
+                    </button>
+                </div>
+                <div v-else>
+                    <input type="text" id="category_name" class="category_list__input" v-model="cost.category" />
+                </div>
+            </div>
 
             <label for="cost_price">Стоимость</label>
-            <input type="number" id="cost_price" v-model="cost_price" />
+            <input type="number" id="cost_price" v-model="cost.price" />
 
             <div class="modal__errors" v-if="formModalErrors">
                 {{formModalErrors}}
             </div>
 
-            <button class="primary_btn" type="submit" @click="addNewCosts">
+            <button class="primary_btn" type="submit" @click="addNewCosts(cost)">
                 Добавить
             </button>
         </form>
@@ -22,20 +36,27 @@
 </template>
 
 <script>
-
 export default {
     name: 'AddForm',
     data() {
         return {
-            cost_date: '',
-            cost_category: '',
-            cost_price: '',
+            cost: {
+                date: '',
+                category: '',
+                price: '',
+            },
+            isShowForm: false,
             formModalErrors: ''
         }
     },
+    computed: {
+        categoryList() {
+            return this.$store.getters.getCategoryList;
+        },
+    },
     methods: {
         _formatedDate() {
-            let dateObject = new Date(this.cost_date);
+            let dateObject = new Date(this.cost.date);
             let month = dateObject.getMonth() + 1;
             if (month < 10) {
                 month = `0${month}`;
@@ -43,21 +64,37 @@ export default {
 
             return `${dateObject.getDate()}.${month}.${dateObject.getFullYear()}`;
         },
-        addNewCosts() {
-            event.preventDefault();
+        _checkCategory() {
+            if (this.categoryList.includes(this.cost.category)) return;
+
+            this.$store.commit('addNewCategory', this.cost.category);
+        },
+        _validate() {
             this.formModalErrors = '';
 
-            if (!this.cost_date || !this.cost_category || !this.cost_price) {
+            if (!this.cost.date || !this.cost.category || !this.cost.price) {
                 this.formModalErrors = 'Заполните форму полностью, пожалуйста';
-                return;
+                return false;
             }
 
-            this.$emit('addNewCosts', {
-                cost_date: this._formatedDate(this.cost_date),
-                cost_category: this.cost_category,
-                cost_price: this.cost_price
-            });
+            return true;
+        },
+        addNewCosts() {
+            event.preventDefault();
+
+            if (this._validate()) {
+                this._checkCategory();
+
+                this.$store.commit('addCostsList', {
+                    date: this._formatedDate(),
+                    category: this.cost.category,
+                    price: this.cost.price
+                });
+            }
         }
+    },
+    mounted() {
+        this.$store.dispatch('loadCategory');
     }
 }
 </script>
@@ -89,7 +126,9 @@ export default {
         }
 
         input {
+            width: 100%;
             height: 36px;
+            box-sizing: border-box;
             font-size: 16px;
             line-height: 20px;
             padding: 0 16px;
@@ -111,6 +150,27 @@ export default {
         border: $red_border;
         border-radius: 4px;
         color: $color_error;
+    }
+
+    .category_list {
+        &__select {
+            width: 60%;
+            height: 40px;
+
+            &_list {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+            }
+        }
+
+        &__btn {
+            width: 38%;
+            height: 40px;
+            font-size: 12px;
+            line-height: 22px;
+        }
     }
 }
 
