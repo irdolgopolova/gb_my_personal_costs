@@ -10,6 +10,7 @@ export default new Vuex.Store({
     categoryListLength: 6,
     page: 1,
     pagesCount: 1,
+    chartData: {},
   },
   getters: {
     getCostsList: ({costsList, page}) => (`page${page}` in costsList) ? costsList[`page${page}`] : costsList,
@@ -25,6 +26,7 @@ export default new Vuex.Store({
     getCategoryList: ({categoryList}) => categoryList,
     getPage: ({page}) => page,
     getPageCount: ({pagesCount}) => pagesCount,
+    getChartData: ({chartData}) => chartData,
   },
   mutations: {
     setCostsList: (state, payload) => {
@@ -34,6 +36,9 @@ export default new Vuex.Store({
     addCostsList: (state, payload) => {
       let lastPage = Object.keys(state.costsList).slice(-1);
       let newCost = Object.assign({id: ++state.categoryListLength }, payload);
+
+      let index = state.chartData.labels.indexOf(newCost.category);
+      state.chartData.datasets[0].data[index] += newCost.value;
 
       if (state.costsList[lastPage].length < 3) {
         state.costsList[lastPage].push(newCost);
@@ -60,6 +65,7 @@ export default new Vuex.Store({
     setCategoryList: (state, payload) => state.categoryList = payload,
     addNewCategory: (state, payload) => state.categoryList.push(payload),
     setPage: (state, payload) => state.page = payload,
+    updateChartData: (state, payload) => state.chartData = payload
   },
   actions: {
     featchData({commit}) {
@@ -98,6 +104,30 @@ export default new Vuex.Store({
         }, 1000)
       })
       .then((list) => commit('setCategoryList', list));
+    },
+
+    loadChartData({commit}) {
+      return new Promise((resolve, reject)=> {
+        if (Object.keys(this.state.chartData).length) return;
+
+        setTimeout(() => {
+          resolve({
+            labels: ['Еда', 'Транспорт', 'Обучение', 'Здоровье'],
+            datasets: [
+              {
+                backgroundColor: [
+                  '#FF9200',
+                  '#FFBF00',
+                  '#FF4900',
+                  '#0B61A4',
+                ],
+                data: [1582, 245, 0, 3120]
+              }
+            ]
+          })
+        }, 1)
+      })
+      .then((list) => commit('updateChartData', list));
     }
   },
 })

@@ -20,10 +20,8 @@ const routes = [
   },
   {
     path: '/update/payment/:id',
-    name: 'addPayment',
-    component: function () {
-      return import('../views/AddFormPage.vue')
-    },
+    name: 'updatePayment',
+    component: HomeView
   }
 ]
 
