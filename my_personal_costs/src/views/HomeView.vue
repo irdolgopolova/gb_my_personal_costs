@@ -3,7 +3,7 @@
     <v-row>
       <v-col :cols="8">
         <div class="text-h5 text-sm-h3 mb-8">Мои личные расходы</div>
-        <ModalForm />
+        <ModalForm @updatecostchart="updateChart"/>
         <PaymentsDisplay />
         <template>
           <div class="text-center">
@@ -16,11 +16,10 @@
         </template>
       </v-col>
       <v-col :cols="4">
-        <DoughnutExample
-          ref="skills_chart"
+        <DoughnutChart
+          ref="costs_chart"
           :chart-data="chartData"
-          >
-        </DoughnutExample>
+        ></DoughnutChart>
       </v-col>
     </v-row>
   </v-container>
@@ -29,25 +28,18 @@
 <script>
   import PaymentsDisplay from "@/components/PaymentsDisplay"
   import ModalForm from "@/components/ModalForm"
-  import DoughnutExample from "@/components/DoughnutExample"
+  import DoughnutChart from "@/components/DoughnutChart"
 
   export default {
     name: 'Home',
     components: {
       PaymentsDisplay,
       ModalForm,
-      DoughnutExample
+      DoughnutChart
     },
     data() {
       return {
         page: 1,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: {
-            animateRotate: false
-          }
-        }
       }
     },
     computed: {
@@ -58,9 +50,13 @@
         return this.$store.getters.getChartData;
       }
     },
+    methods: {
+      updateChart() {
+        this.$refs.costs_chart.update();
+      }
+    },
     updated() {
       this.$store.commit('setPage', this.page);
-      console.log(this.$refs.skills_chart.test())
     },
     mounted() {
       this.$store.dispatch('loadChartData');

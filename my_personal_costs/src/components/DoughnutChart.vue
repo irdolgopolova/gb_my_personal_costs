@@ -25,36 +25,6 @@
     components: {
       Doughnut
     },
-    props: {
-      chartId: {
-        type: String,
-        default: 'doughnut-chart'
-      },
-      datasetIdKey: {
-        type: String,
-        default: 'label'
-      },
-      width: {
-        type: Number,
-        default: 400
-      },
-      height: {
-        type: Number,
-        default: 400
-      },
-      cssClasses: {
-        default: '',
-        type: String
-      },
-      styles: {
-        type: Object,
-        default: () => {}
-      },
-      plugins: {
-        type: Array,
-        default: () => []
-      }
-    },
     data() {
       return {
         chartOptions: {
@@ -68,10 +38,9 @@
         chartData: Object
     },
     methods: {
-        test() {
-            console.log(this.$store.getters.getChartData.datasets[0].data);
-            this.componentKey += 1;
-        }
+      update() {
+        this.componentKey += 1;
+      }
     },
     mounted() {
       this.$store.dispatch('featchData');
