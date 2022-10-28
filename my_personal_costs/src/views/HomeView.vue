@@ -28,7 +28,6 @@
 
 <script>
   import PaymentsDisplay from "@/components/PaymentsDisplay"
-  import Diagram from "@/components/Diagram"
   import ModalForm from "@/components/ModalForm"
   import DoughnutExample from "@/components/DoughnutExample"
 
@@ -36,7 +35,6 @@
     name: 'Home',
     components: {
       PaymentsDisplay,
-      Diagram,
       ModalForm,
       DoughnutExample
     },
